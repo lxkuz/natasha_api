@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 RUN pip install fastapi
 RUN pip install uvicorn
 RUN pip install natasha
+RUN pip install pydantic
 
 COPY . .
 

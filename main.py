@@ -13,15 +13,26 @@ from natasha import (
 
     Doc
 )
+from pydantic import BaseModel
+
+class Item(BaseModel):
+    text: str
 
 app = FastAPI()
 
-@app.get("/my-first-api")
-def hello(text: str):
-  print(text)
+@app.post("/pluck_names")
+async def pluck_names(item: Item):
   emb = NewsEmbedding()
+  segmenter = Segmenter()
   ner_tagger = NewsNERTagger(emb)
-  doc = Doc(text)
+  doc = Doc(item.text)
+  doc.segment(segmenter)
   doc.tag_ner(ner_tagger)
-  print(doc.ner.print())
-  return {"success"}
+  return extract_names(doc.spans)
+
+def extract_names(spans):
+    names = []
+    for span in spans:
+        if span.type == 'PER':  # Filtering condition
+            names.append(span.text)
+    return names
